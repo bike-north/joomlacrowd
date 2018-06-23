@@ -37,6 +37,7 @@ class plgSystemCrowdSSO extends JPlugin {
 
     const CONFIG_DISABLEADMIN = 'disable_admin';
     const CONFIG_COOKIENAME = 'cookieName';
+	const CONFIG_COOKIEDOMAIN = 'crowd_cookie_domain';
 	const LOGGER_CATEGORY = 'crowdsso';
 
     /**
@@ -132,7 +133,13 @@ class plgSystemCrowdSSO extends JPlugin {
       $cookiekey = str_replace('.', '_', $cookiename); # joomla replaces this?
 	  if (isset($_COOKIE[$cookiekey])) {
 	    unset($_COOKIE[$cookiekey]);
-	    setcookie($cookiename, '', time() - 3600, '/');
+	    // if we have an alternal cookie domain, set it now.
+        $cookieDomain = "";
+		$altCookieDomain = $this->params->get(self::CONFIG_COOKIEDOMAIN);
+        if (is_string($altCookieDomain)) {
+			$cookieDomain = $altCookieDomain;
+		}
+	    setcookie($cookiename, '', time() - 3600, '/', $cookieDomain, false, true);
         JLog::add('crowdsso::onUserLogout - deleted cookie ' . $cookiename, JLog::DEBUG, self::LOGGER_CATEGORY); 
 	  }
 	}
